@@ -20,16 +20,27 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept SDK Licenses
+        run: |
+          yes | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --licenses || true
 
       - name: Install Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: Extract Android project
+      - name: Verify and Extract Archive
         run: |
-          unzip -o NokiaEmulator_project.zip -d extracted
+          if [ -f "NokiaEmulator_project.zip" ]; then
+            unzip -o NokiaEmulator_project.zip -d extracted
+          else
+            echo "Error: NokiaEmulator_project.zip not found in root directory!"
+            ls -la
+            exit 1
+          fi
 
       - name: Build debug APK
         working-directory: extracted/NokiaEmulator
